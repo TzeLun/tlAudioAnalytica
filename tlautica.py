@@ -13,6 +13,45 @@ from scipy.signal import windows
 # reconstruct audio from spectrogram (spectrogram inversion)
 
 
+# Load the audio wave into a numpy ndarray time series data.
+def load(path, start=0.0, duration=None, sr=None):
+    y, sr_ = librosa.load(path, sr=sr, offset=start, duration=duration)
+    return y, sr_
+
+
+# Normalize audio waveform volume or spectrogram power to a range between [-1 1]
+def normalize(y):
+    ref = np.max(np.abs(y))
+    return np.divide(y, ref)
+
+
+# Segment the audio into smaller pieces
+def segment_audio(y, sr, start=0.0, duration=None):
+    start_index = int(start * sr)  # point to begin sampling the sub-array
+    if duration is None:
+        end_index = int(get_duration(y, sr) * sr)  # segment the audio till the end
+        return y[start_index:end_index]
+    else:
+        if (start + duration) > get_duration(y, sr):
+            print("WARNING: DURATION EXCEEDS THE TOTAL TIME OF THE AUDIO")
+            print("PROVIDED DURATION IS TRUNCATED TO THE MAXIMUM AUDIO TIME")
+            end_index = int(get_duration(y, sr) * sr)  # segment the audio till the end
+            return y[start_index:end_index]
+        else:
+            end_index = int((start + duration) * sr)  # segment the audio till the end
+            return y[start_index:end_index]
+
+
+# Convert a single mel spectrogram data to a suitable format for CNN use
+def mel_spectrogram_to_cnn_data_format(S):
+    return S[..., np.newaxis]
+
+
+# Get the duration of the audio signal or spectrogram
+def get_duration(y, sr):
+    return librosa.get_duration(y=y, sr=sr)
+
+
 # Provide the function with an iterable (list, np.array) of path to audio files
 # Give a value for sr if the audio should be loaded differently from its native
 # sampling rate.
@@ -76,6 +115,12 @@ def disp_multiple_waveform(Y, SR, audio_handler, choice='all',
                 audio_handler.plot_waveform(Y[choice[ind]],
                                             SR[choice[ind]],
                                             annotation, hold=True)
+            plt.subplots_adjust(left=audio_handler.figProperties['subplot_padding'][0],
+                                right=audio_handler.figProperties['subplot_padding'][1],
+                                bottom=audio_handler.figProperties['subplot_padding'][2],
+                                top=audio_handler.figProperties['subplot_padding'][3],
+                                wspace=audio_handler.figProperties['subplot_padding'][4],
+                                hspace=audio_handler.figProperties['subplot_padding'][5])
             plt.show()
         elif orientation == 'column-major':
             for ind in range(len(choice)):
@@ -83,6 +128,12 @@ def disp_multiple_waveform(Y, SR, audio_handler, choice='all',
                 audio_handler.plot_waveform(Y[choice[ind]],
                                             SR[choice[ind]],
                                             annotation, hold=True)
+            plt.subplots_adjust(left=audio_handler.figProperties['subplot_padding'][0],
+                                right=audio_handler.figProperties['subplot_padding'][1],
+                                bottom=audio_handler.figProperties['subplot_padding'][2],
+                                top=audio_handler.figProperties['subplot_padding'][3],
+                                wspace=audio_handler.figProperties['subplot_padding'][4],
+                                hspace=audio_handler.figProperties['subplot_padding'][5])
             plt.show()
     elif choice == 'all':
         if orientation == 'row-major':
@@ -91,6 +142,12 @@ def disp_multiple_waveform(Y, SR, audio_handler, choice='all',
                 audio_handler.plot_waveform(Y[ind],
                                             SR[ind],
                                             annotation, hold=True)
+            plt.subplots_adjust(left=audio_handler.figProperties['subplot_padding'][0],
+                                right=audio_handler.figProperties['subplot_padding'][1],
+                                bottom=audio_handler.figProperties['subplot_padding'][2],
+                                top=audio_handler.figProperties['subplot_padding'][3],
+                                wspace=audio_handler.figProperties['subplot_padding'][4],
+                                hspace=audio_handler.figProperties['subplot_padding'][5])
             plt.show()
         elif orientation == 'column-major':
             for ind in range(len(Y)):
@@ -98,6 +155,12 @@ def disp_multiple_waveform(Y, SR, audio_handler, choice='all',
                 audio_handler.plot_waveform(Y[ind],
                                             SR[ind],
                                             annotation, hold=True)
+            plt.subplots_adjust(left=audio_handler.figProperties['subplot_padding'][0],
+                                right=audio_handler.figProperties['subplot_padding'][1],
+                                bottom=audio_handler.figProperties['subplot_padding'][2],
+                                top=audio_handler.figProperties['subplot_padding'][3],
+                                wspace=audio_handler.figProperties['subplot_padding'][4],
+                                hspace=audio_handler.figProperties['subplot_padding'][5])
             plt.show()
 
 
@@ -116,23 +179,47 @@ def disp_multiple_mel_spectrogram(S, audio_handler, choice='all',
         if orientation == 'row-major':
             for ind in range(len(choice)):
                 plt.subplot(len(choice), 1, ind + 1)
-                audio_handler.plot_waveform(S[choice[ind]], annotation, hold=True)
+                audio_handler.plot_mel_spectrogram(S[choice[ind]], annotation, hold=True)
+            plt.subplots_adjust(left=audio_handler.figProperties['subplot_padding'][0],
+                                right=audio_handler.figProperties['subplot_padding'][1],
+                                bottom=audio_handler.figProperties['subplot_padding'][2],
+                                top=audio_handler.figProperties['subplot_padding'][3],
+                                wspace=audio_handler.figProperties['subplot_padding'][4],
+                                hspace=audio_handler.figProperties['subplot_padding'][5])
             plt.show()
         elif orientation == 'column-major':
             for ind in range(len(choice)):
                 plt.subplot(1, len(choice), ind + 1)
-                audio_handler.plot_waveform(S[choice[ind]], annotation, hold=True)
+                audio_handler.plot_mel_spectrogram(S[choice[ind]], annotation, hold=True)
+            plt.subplots_adjust(left=audio_handler.figProperties['subplot_padding'][0],
+                                right=audio_handler.figProperties['subplot_padding'][1],
+                                bottom=audio_handler.figProperties['subplot_padding'][2],
+                                top=audio_handler.figProperties['subplot_padding'][3],
+                                wspace=audio_handler.figProperties['subplot_padding'][4],
+                                hspace=audio_handler.figProperties['subplot_padding'][5])
             plt.show()
     elif choice == 'all':
         if orientation == 'row-major':
             for ind in range(len(S)):
                 plt.subplot(len(S), 1, ind + 1)
-                audio_handler.plot_waveform(S[ind], annotation, hold=True)
+                audio_handler.plot_mel_spectrogram(S[ind], annotation, hold=True)
+            plt.subplots_adjust(left=audio_handler.figProperties['subplot_padding'][0],
+                                right=audio_handler.figProperties['subplot_padding'][1],
+                                bottom=audio_handler.figProperties['subplot_padding'][2],
+                                top=audio_handler.figProperties['subplot_padding'][3],
+                                wspace=audio_handler.figProperties['subplot_padding'][4],
+                                hspace=audio_handler.figProperties['subplot_padding'][5])
             plt.show()
         elif orientation == 'column-major':
             for ind in range(len(S)):
                 plt.subplot(1, len(S), ind + 1)
-                audio_handler.plot_waveform(S[ind], annotation, hold=True)
+                audio_handler.plot_mel_spectrogram(S[ind], annotation, hold=True)
+            plt.subplots_adjust(left=audio_handler.figProperties['subplot_padding'][0],
+                                right=audio_handler.figProperties['subplot_padding'][1],
+                                bottom=audio_handler.figProperties['subplot_padding'][2],
+                                top=audio_handler.figProperties['subplot_padding'][3],
+                                wspace=audio_handler.figProperties['subplot_padding'][4],
+                                hspace=audio_handler.figProperties['subplot_padding'][5])
             plt.show()
 
 
@@ -154,7 +241,10 @@ class TLAudioHandler:
                      'xlim': (None, None),
                      'ylim': (None, None),
                      'figsize': (256, 256),
-                     'dpi': 96}
+                     'dpi': 96,
+                     'colorbar_range': (None, None),
+                     'cmap': 'jet',
+                     'subplot_padding': [None, None, None, None, None, 0.5]}
     stftProperties = {'window': 'hann',
                       'win_length': 512,
                       'n_fft': 1024,
@@ -248,6 +338,38 @@ class TLAudioHandler:
     # https://www.infobyip.com/detectmonitordpi.php
     def set_dpi(self, dpi):
         self.figProperties['dpi'] = dpi
+
+    # Set the colorbar range, (vmin, vmax)
+    def set_colorbar_range(self, range):
+        self.figProperties['colorbar_range'] = range
+
+    # Set color map, default: 'jet'
+    def set_cmap(self, cm):
+        self.figProperties['cmap'] = cm
+
+    # Set padding of subplots, set the values by specifying the arguments, or
+    # Give a list of at most 6 floating point values,
+    # each pertaining to the order of the padding values as follows:
+    # [left, right, bottom, top, wspace, hspace]
+    # Any list size, n, smaller than 6 will just edit the first n padding values
+    # To edit only one padding parameter, give the name of the padding in strings/char
+    # for the option argument. Then set the padding value through pad argument
+    def set_subplot_padding(self, option, pad=None):
+        if type(option) is list:
+            for i in range(len(option)):
+                self.figProperties['subplot_padding'][i] = option[i]
+        elif option == 'left':
+            self.figProperties['subplot_padding'][0] = pad
+        elif option == 'right':
+            self.figProperties['subplot_padding'][1] = pad
+        elif option == 'bottom':
+            self.figProperties['subplot_padding'][2] = pad
+        elif option == 'top':
+            self.figProperties['subplot_padding'][3] = pad
+        elif option == 'wspace':
+            self.figProperties['subplot_padding'][4] = pad
+        elif option == 'hspace':
+            self.figProperties['subplot_padding'][5] = pad
 
     # Set the window type for STFT.
     # Available windows are according to scipy.signal.windows
@@ -445,7 +567,10 @@ class TLAudioHandler:
                                      sr=self.specProperties['sr'],
                                      fmin=self.specProperties['fmin'],
                                      fmax=self.specProperties['fmax'],
-                                     hop_length=self.stftProperties['hop_length'])
+                                     hop_length=self.stftProperties['hop_length'],
+                                     vmin=self.figProperties['colorbar_range'][0],
+                                     vmax=self.figProperties['colorbar_range'][1],
+                                     cmap=self.figProperties['cmap'])
             plt.title('Mel frequency spectrogram')
             plt.colorbar()
             if not hold:
@@ -457,7 +582,10 @@ class TLAudioHandler:
                                      sr=self.specProperties['sr'],
                                      fmin=self.specProperties['fmin'],
                                      fmax=self.specProperties['fmax'],
-                                     hop_length=self.stftProperties['hop_length'])
+                                     hop_length=self.stftProperties['hop_length'],
+                                     vmin=self.figProperties['colorbar_range'][0],
+                                     vmax=self.figProperties['colorbar_range'][1],
+                                     cmap=self.figProperties['cmap'])
             if not hold:
                 plt.show()
 
@@ -478,7 +606,10 @@ class TLAudioHandler:
                                      sr=self.specProperties['sr'],
                                      fmin=self.specProperties['fmin'],
                                      fmax=self.specProperties['fmax'],
-                                     hop_length=self.stftProperties['hop_length'])
+                                     hop_length=self.stftProperties['hop_length'],
+                                     vmin=self.figProperties['colorbar_range'][0],
+                                     vmax=self.figProperties['colorbar_range'][1],
+                                     cmap=self.figProperties['cmap'])
             plt.title('Mel frequency spectrogram')
             plt.colorbar()
             if tight:
@@ -498,7 +629,10 @@ class TLAudioHandler:
                                      sr=self.specProperties['sr'],
                                      fmin=self.specProperties['fmin'],
                                      fmax=self.specProperties['fmax'],
-                                     hop_length=self.stftProperties['hop_length'])
+                                     hop_length=self.stftProperties['hop_length'],
+                                     vmin=self.figProperties['colorbar_range'][0],
+                                     vmax=self.figProperties['colorbar_range'][1],
+                                     cmap=self.figProperties['cmap'])
             plt.axis('off')
             if tight:
                 plt.tight_layout(pad=0)
@@ -509,41 +643,54 @@ class TLAudioHandler:
                             dpi=self.figProperties['dpi'])
 
 
-# Load the audio wave into a numpy ndarray time series data.
-def load(path, start=0.0, duration=None, sr=None):
-    y, sr_ = librosa.load(path, sr=sr, offset=start, duration=duration)
-    return y, sr_
+# ---------------------------- Data Augmentation function -------------------------------
+
+# Input the spectrogram or mel spectrogram array, axis/unit format doesn't matter
+# Up to user's liking. Format should NOT be a CNN image style, ie: (W, H, Channel)
+# m_f is the number of frequency mask, usually set to 1 or 2
+# F gives a random range of the mask coverage. The larger the F, potentially wider the mask
+# WARNING: THIS FUNCTION WILL LEAD TO MUTATION OF THE INPUT SPECTROGRAM
+def frequency_mask(S, m_f=2, F=2):
+    # loop over to create m_f masks
+    for i in range(m_f):
+        # randomly select the number of frequency bands (width)
+        f = int(np.random.uniform(0, F))
+        # randomly select the starting mel band to apply the masking
+        f0 = np.random.randint(0, S.shape[0] - f)
+        # Mask the frequency band by setting the power values to 0 (could be anything else)
+        S[f0:f0+f, :] = 0
+    return S
 
 
-# Normalize audio waveform volume or spectrogram power to a range between [-1 1]
-def normalize(y):
-    ref = np.max(np.abs(y))
-    return np.divide(y, ref)
+# Input the spectrogram or mel spectrogram array, axis/unit format doesn't matter
+# Up to user's liking. Format should NOT be a CNN image style, ie: (W, H, Channel)
+# m_t is the number of time mask, usually set to 1 or 2
+# T gives a random range of the mask coverage. The larger the T, potentially wider the mask
+# WARNING: THIS FUNCTION WILL LEAD TO MUTATION OF THE INPUT SPECTROGRAM
+def time_mask(S, m_t=2, T=2):
+    # loop over to create m_t masks
+    for i in range(m_t):
+        # randomly select the number of frequency bands (width)
+        t = int(np.random.uniform(0, T))
+        # randomly select the starting time frame to apply the masking
+        t0 = np.random.randint(0, S.shape[1] - t)
+        # Mask the time band by setting the power values to 0 (could be anything else)
+        S[:, t0:t0+t] = 0
+    return S
 
 
-# Segment the audio into smaller pieces
-def segment_audio(y, sr, start=0.0, duration=None):
-    start_index = int(start * sr)  # point to begin sampling the sub-array
-    if duration is None:
-        end_index = int(get_duration(y, sr) * sr)  # segment the audio till the end
-        return y[start_index:end_index]
+# Time shifting for raw audio waveform, randomly shifts the audio waveform
+# along the time domain.
+def time_shift(y, sr, t=0.0):
+    shift = int(t * sr)
+    y0 = np.zeros(shift)
+    if shift >= len(y):
+        return y0
     else:
-        if (start + duration) > get_duration(y, sr):
-            print("WARNING: DURATION EXCEEDS THE TOTAL TIME OF THE AUDIO")
-            print("PROVIDED DURATION IS TRUNCATED TO THE MAXIMUM AUDIO TIME")
-            end_index = int(get_duration(y, sr) * sr)  # segment the audio till the end
-            return y[start_index:end_index]
-        else:
-            end_index = int((start + duration) * sr)  # segment the audio till the end
-            return y[start_index:end_index]
+        y1 = y[0:(len(y) - shift)]
+        return np.concatenate((y0, y1), axis=0)
 
 
-# Convert a single mel spectrogram data to a suitable format for CNN use
-def mel_spectrogram_to_cnn_data_format(S):
-    return S[..., np.newaxis]
-
-
-# Get the duration of the audio signal or spectrogram
-def get_duration(y, sr):
-    return librosa.get_duration(y=y, sr=sr)
-
+# Amplitude scaling or gain scaling for raw audio waveform
+def gain_scaling(y, gain=1.0):
+    return np.multiply(y, gain)

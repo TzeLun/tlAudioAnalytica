@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import windows
 import soundfile as sf
+import pickle
+import json
 
 # to automatically label the spectrogram based on the value of its force
 
@@ -12,6 +14,15 @@ import soundfile as sf
 # to tally the sampling rate between audio and force sampling for coherent sampling in data preparation
 
 # reconstruct audio from spectrogram (spectrogram inversion)
+
+
+# A JSON object handler for the json data loading and saving
+class JSONObjHandler:
+    data = None
+    sr = None
+    num_data = None
+    dtype = None
+    info = None
 
 
 # Load the audio wave into a numpy ndarray time series data.
@@ -24,7 +35,59 @@ def load(path, start=0.0, duration=None, sr=None):
 # it is recommended to save it as .wav file
 def convert_to_audiofile(filename, y, sr):
     sf.write(file=filename, data=y, samplerate=sr)
-    # sf.write(y, filename, sr)
+
+
+# Prepare meta-data for JSON format. The numpy data or list
+# should be enclosed within an array whether it is for single or multiple array data
+# Supports only numpy.ndarray, as this is used throughout tlautica and
+# also other ML/DL libraries.
+# The info argument is a string which gives greater details about the
+# contents of the array. For example, "mel spectrogram", "waveform"
+def to_metadata(data=None, sr=None, info=None):
+    dt = {'data': None,
+          'sampling rate': None,
+          'number of data': None,
+          'dtype': None,
+          'info': None}
+    if data is not None:
+        dtype = data.dtype
+        dt['number of data'] = data.shape[0]
+        dt['data'] = data.tolist()
+        dt['dtype'] = dtype.name
+    if sr is not None:
+        dt['sampling rate'] = sr
+    if info is not None:
+        dt['info'] = info
+    return dt
+
+
+# Save the audio waveform array or the mel spectrogram tensor into a json file
+# The file format is STRICTLY in ".json"
+# Not necessary to include .json at the suffix of the filename
+def save_json(filename, metadata):
+    if '.json' not in filename:
+        filename = filename + '.json'
+    with open(filename, 'w') as f:
+        json.dump(metadata, f)
+
+
+# Load the audio waveform array or the mel spectrogram tensor from the json file
+# The file format is STRICTLY in ".json"
+# Not necessary to include .json at the suffix of the filename
+# The loaded data is stored in a json handler object (see above)
+# The loaded tensor data is STRICTLY in a numpy.ndarray format.
+def load_json(filename):
+    if '.json' not in filename:
+        filename = filename + '.json'
+    with open(filename, 'r') as f:
+        dt = json.load(f)
+        JSON_handler = JSONObjHandler()
+        JSON_handler.data = np.array(dt['data'], dtype=dt['dtype'])
+        JSON_handler.sr = dt['sampling rate']
+        JSON_handler.num_data = dt['number of data']
+        JSON_handler.type = dt['dtype']
+        JSON_handler.info = dt['info']
+        return JSON_handler
 
 
 # Normalize audio waveform volume or spectrogram power to a range between [-1 1]

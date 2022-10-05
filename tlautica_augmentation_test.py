@@ -1,5 +1,5 @@
 import tlautica
-import soundfile as sf
+import numpy as np
 
 # ------------Load the audio file-------------------------------
 path = 'C:/Users/Tze Lun/data prelim/data_prelim/free_running_drill_2.wav'
@@ -14,7 +14,7 @@ a_h.set_fmax(sr / 2)  # unless the default is already aligned with the data's
 # Pre-computation of the mel spectrogram
 s = tlautica.normalize(a_h.mel_spectrogram(y))
 # Set color bar range to that between -1 to 1
-a_h.set_colorbar_range((-1.0, 1.0))
+a_h.set_colorbar_range((-1.0, 0.1))
 
 #
 # # -------------- Time shifting ----------------------------
@@ -153,7 +153,9 @@ path_to_noise = 'C:/Users/Tze Lun/data prelim/data_prelim/pressing_2.wav'
 noise, sr_noise = tlautica.load(path_to_noise)
 noise = tlautica.segment_audio(noise, sr_noise, 2.0, 2.0)
 y_noisy = tlautica.add_noise(y, sr, (noise, sr_noise), t_in=4.0, k=2.0)
-tlautica.convert_to_audiofile('with_noise.wav', y_noisy, sr)
+# tlautica.convert_to_audiofile('with_noise.wav', y_noisy, sr)
+dt = tlautica.to_metadata(np.array([y_noisy]), sr, 'audio waveform array')
+tlautica.save_json('polluted_signal', dt)
 print(y.shape[0])
 print(y_noisy.shape[0])
 # waveform analysis
@@ -164,4 +166,10 @@ tlautica.disp_multiple_waveform(Y, SR, a_h)
 s_y_noisy = tlautica.normalize(a_h.mel_spectrogram(y_noisy))
 S = [s, s_y_noisy]
 tlautica.disp_multiple_mel_spectrogram(S, a_h)
+
+json_handler = tlautica.load_json('polluted_signal')
+# waveform analysis
+Y = [y, json_handler.data[0]]
+SR = [sr, json_handler.sr]
+tlautica.disp_multiple_waveform(Y, SR, a_h)
 

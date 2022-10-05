@@ -3,6 +3,7 @@ import librosa.display
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import windows
+import soundfile as sf
 
 # to automatically label the spectrogram based on the value of its force
 
@@ -17,6 +18,13 @@ from scipy.signal import windows
 def load(path, start=0.0, duration=None, sr=None):
     y, sr_ = librosa.load(path, sr=sr, offset=start, duration=duration)
     return y, sr_
+
+
+# Save the waveform array into an audible format. For consistency,
+# it is recommended to save it as .wav file
+def convert_to_audiofile(filename, y, sr):
+    sf.write(file=filename, data=y, samplerate=sr)
+    # sf.write(y, filename, sr)
 
 
 # Normalize audio waveform volume or spectrogram power to a range between [-1 1]
@@ -694,3 +702,63 @@ def time_shift(y, sr, t=0.0):
 # Amplitude scaling or gain scaling for raw audio waveform
 def gain_scaling(y, gain=1.0):
     return np.multiply(y, gain)
+
+
+# Time stretching of the audio signal waveform. Based mainly on librosa function
+# Rate > 1.0 stretches the waveform (slow down),
+# Rate < 1.0 compresses the waveform (speed up)
+def time_stretch(y, rate=1.0):
+    return librosa.effects.time_stretch(y, rate=rate)
+
+
+# Pitch scaling using librosa's pitch stretching. In general, only modify the n_step
+# The n_step is the change in the pitch based on the number of semitones (half step)
+# to shift
+def pitch_scaling(y, sr, n_step=1):
+    return librosa.effects.pitch_shift(y, sr=sr, n_steps=n_step)
+
+
+# Add white noise to the audio waveform. SNR is the signal-to-noise ratio
+# k is the scaling gain for the noise. The higher this value, the louder the noise
+def add_white_noise(y, snr=1.0, k=1.0):
+    rms = np.sqrt(np.mean(np.square(y)))
+    std_noise = rms / np.sqrt(10 ** (snr / 10.0))
+    noise = np.random.normal(0, std_noise, y.shape[0])
+    return y + k * noise
+
+
+# Add custom noise. These are noise from recordings or something similar.
+# If the noise wasn't recorded with the same sampling rate, the noise will be resampled
+# to fit the input signal. Truncation of noise happens when the noise duration is
+# longer than the input signal. Otherwise, the noise will be slotted in randomly within
+# the input signal, if none is specified.
+# It is also possible to add noise waveform in array form instead of its location path
+# However, it must be given in an iterable format as such:
+# n_src = (noise, sr_noise) or [noise, sr_noise] etc.
+def add_noise(y, sr, n_src, t_in=0.0, k=1.0):
+    if type(n_src) is str:
+        noise, sr_noise = librosa.load(n_src, sr=None)
+    else:
+        noise = n_src[0]
+        sr_noise = n_src[1]
+    if sr != sr_noise:
+        noise = librosa.resample(noise, sr_noise, sr)
+    if y.shape[0] < noise.shape[0]:
+        # truncation of noise waveform
+        return y + k * noise[0:y.shape[0]]
+    else:
+        # Supposedly no truncation, but if the t_in is other than 0.0,
+        # the offset might force a length of the signal to be truncated
+        offset = int(t_in * sr)
+        size_diff = y.shape[0] - noise.shape[0]
+        truncated_size = offset - size_diff
+        if truncated_size > noise.shape[0]:
+            return y
+        y0 = y[0:offset]
+        if offset <= size_diff:
+            y1 = y[offset:(offset + noise.shape[0])] + k * noise
+            y2 = y[(offset + noise.shape[0]):len(y)]
+            return np.concatenate((y0, y1, y2), axis=0)
+        else:
+            y1 = y[offset:len(y)] + k * noise[0:(len(noise) - truncated_size)]
+            return np.concatenate((y0, y1), axis=0)

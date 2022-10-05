@@ -10,12 +10,12 @@ a_h.set_fmax(sr / 2)  # unless the default is already aligned with the data's
 a_h.set_title('free running drill')
 # Segment audio with a tlautica function
 ys = tlautica.segment_audio(y, sr, 4.5, 0.1)
-# print(ys.shape)
-# ys_shifted = tlautica.time_shift(ys, sr, 0.05)
-ys_scaled = tlautica.gain_scaling(ys, 5)
-# print(ys_shifted.shape)
+print(ys.shape)
+ys_shifted = tlautica.time_shift(ys, sr, 0.0)
+# ys_scaled = tlautica.gain_scaling(ys, 5)
+print(ys_shifted.shape)
 a_h.plot_waveform(ys, sr)
-a_h.plot_waveform(ys_scaled, sr)
+a_h.plot_waveform(ys_shifted, sr)
 # One of the other function of the audio handler
 # ys_new = a_h.resample(ys, sr, 22050)
 # Strength of the audio handler. Separates syntax from the analytical work

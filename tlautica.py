@@ -521,6 +521,14 @@ class TLAudioHandler:
         else:
             return self.mel_spectrogram(y)[..., np.newaxis]
 
+    # Subplot wrapper function in tlautica, same definition as matplotlib.pyplot.subplot
+    def subplot(self, nrow, ncol, ind):
+        plt.subplot(nrow, ncol, ind)
+
+    # Wrapper function for plt.show
+    def show(self):
+        plt.show()
+
     # Plot the audio waveform in magnitude-time domain, requires matplotlib
     def plot_waveform(self, y, sr=specProperties['sr'], annotation=False, hold=False):
         t = np.multiply(np.arange(0, len(y)), get_duration(y, sr) / float(len(y)-1))
@@ -642,7 +650,7 @@ class TLAudioHandler:
                                      vmin=self.figProperties['colorbar_range'][0],
                                      vmax=self.figProperties['colorbar_range'][1],
                                      cmap=self.figProperties['cmap'])
-            plt.title('Mel frequency spectrogram')
+            plt.title(self.figProperties['title'])
             plt.colorbar()
             if not hold:
                 plt.show()
@@ -681,7 +689,7 @@ class TLAudioHandler:
                                      vmin=self.figProperties['colorbar_range'][0],
                                      vmax=self.figProperties['colorbar_range'][1],
                                      cmap=self.figProperties['cmap'])
-            plt.title('Mel frequency spectrogram')
+            plt.title(self.figProperties['title'])
             plt.colorbar()
             if tight:
                 plt.tight_layout(pad=0)
@@ -721,7 +729,8 @@ class TLAudioHandler:
 # m_f is the number of frequency mask, usually set to 1 or 2
 # F gives a random range of the mask coverage. The larger the F, potentially wider the mask
 # WARNING: THIS FUNCTION WILL LEAD TO MUTATION OF THE INPUT SPECTROGRAM
-def frequency_mask(S, m_f=2, F=2):
+# The argument m_value allows user to set the value for the masks, else set to the minimum value of the spectrogram
+def frequency_mask(S, m_f=2, F=2, m_value=None):
     # loop over to create m_f masks
     for i in range(m_f):
         # randomly select the number of frequency bands (width)
@@ -729,7 +738,10 @@ def frequency_mask(S, m_f=2, F=2):
         # randomly select the starting mel band to apply the masking
         f0 = np.random.randint(0, S.shape[0] - f)
         # Mask the frequency band by setting the power values to 0 (could be anything else)
-        S[f0:f0+f, :] = 0
+        if m_value is not None:
+            S[f0:f0+f, :] = m_value
+        else:
+            S[f0:f0 + f, :] = np.min(S)
     return S
 
 
@@ -738,7 +750,8 @@ def frequency_mask(S, m_f=2, F=2):
 # m_t is the number of time mask, usually set to 1 or 2
 # T gives a random range of the mask coverage. The larger the T, potentially wider the mask
 # WARNING: THIS FUNCTION WILL LEAD TO MUTATION OF THE INPUT SPECTROGRAM
-def time_mask(S, m_t=2, T=2):
+# The argument m_value allows user to set the value for the masks, else set to the minimum value of the spectrogram
+def time_mask(S, m_t=2, T=2, m_value=None):
     # loop over to create m_t masks
     for i in range(m_t):
         # randomly select the number of frequency bands (width)
@@ -746,7 +759,10 @@ def time_mask(S, m_t=2, T=2):
         # randomly select the starting time frame to apply the masking
         t0 = np.random.randint(0, S.shape[1] - t)
         # Mask the time band by setting the power values to 0 (could be anything else)
-        S[:, t0:t0+t] = 0
+        if m_value is not None:
+            S[:, t0:t0 + t] = m_value
+        else:
+            S[:, t0:t0 + t] = np.min(S)
     return S
 
 

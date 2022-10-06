@@ -15,161 +15,262 @@ a_h.set_fmax(sr / 2)  # unless the default is already aligned with the data's
 s = tlautica.normalize(a_h.mel_spectrogram(y))
 # Set color bar range to that between -1 to 1
 a_h.set_colorbar_range((-1.0, 0.1))
+a_h.set_ylim((-0.1, 0.1))
 
-#
-# # -------------- Time shifting ----------------------------
-# a_h.set_title('free running drill (time shifting)')
-# y_shifted = tlautica.time_shift(y, sr, 1.0)
+# -------------- Time shifting ----------------------------
+# y_shifted = tlautica.time_shift(y, sr, 5.0)
 # # Waveform analysis
-# Y = [y, y_shifted]
-# SR = [sr, sr]
-# tlautica.disp_multiple_waveform(Y, SR, a_h)
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_waveform(y, sr, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
+# a_h.set_title('free running drill (time shift = 5.0s)')
+# a_h.plot_waveform(y_shifted, sr, annotation=True, hold=True)
+# a_h.show()
 # # Mel Spectrogram analysis
 # s_y_shifted = tlautica.normalize(a_h.mel_spectrogram(y_shifted))
-# S = [s, s_y_shifted]
-# tlautica.disp_multiple_mel_spectrogram(S, a_h)
-#
-#
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_mel_spectrogram(s, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
+# a_h.set_title('free running drill (time shift = 5.0s)')
+# a_h.plot_mel_spectrogram(s_y_shifted, annotation=True, hold=True)
+# a_h.show()
+
+
 # # ----------------- Time stretching --------------------------
-# a_h.set_title('free running drill (time stretching, rate=2.0)')
-# # Stretch up the audio by a factor of 2
-# y_stretch = tlautica.time_stretch(y, 2)
+# # Stretch up the audio by a factor of 4
+# y_stretch = tlautica.time_stretch(y, 4)
+# print(y.shape[0])
+# print(y_stretch.shape[0])
 # # Waveform analysis
-# Y = [y, y_stretch]
-# SR = [sr, sr]
-# tlautica.disp_multiple_waveform(Y, SR, a_h)
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_waveform(y, sr, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
+# a_h.set_title('free running drill (time stretch, rate = 4.0)')
+# a_h.plot_waveform(y_stretch, sr, annotation=True, hold=True)
+# a_h.show()
 # # Mel Spectrogram analysis
 # s_y_stretch = tlautica.normalize(a_h.mel_spectrogram(y_stretch))
-# S = [s, s_y_stretch]
-# tlautica.disp_multiple_mel_spectrogram(S, a_h)
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_mel_spectrogram(s, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
+# a_h.set_title('free running drill (time stretch, rate = 4.0)')
+# a_h.plot_mel_spectrogram(s_y_stretch, annotation=True, hold=True)
+# a_h.show()
 #
-# a_h.set_title('free running drill (time stretching, rate=0.5)')
-# # Compress the audio by a factor of 2
-# y_stretch = tlautica.time_stretch(y, 0.5)
+# # Compress down the audio by a factor of 0.2
+# y_stretch = tlautica.time_stretch(y, 0.2)
+# print(y.shape[0])
+# print(y_stretch.shape[0])
 # # Waveform analysis
-# Y = [y, y_stretch]
-# SR = [sr, sr]
-# tlautica.disp_multiple_waveform(Y, SR, a_h)
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_waveform(y, sr, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
+# a_h.set_title('free running drill (time stretch, rate = 0.2)')
+# a_h.plot_waveform(y_stretch, sr, annotation=True, hold=True)
+# a_h.show()
 # # Mel Spectrogram analysis
 # s_y_stretch = tlautica.normalize(a_h.mel_spectrogram(y_stretch))
-# S = [s, s_y_stretch]
-# tlautica.disp_multiple_mel_spectrogram(S, a_h)
-#
-#
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_mel_spectrogram(s, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
+# a_h.set_title('free running drill (time stretch, rate = 0.2)')
+# a_h.plot_mel_spectrogram(s_y_stretch, annotation=True, hold=True)
+# a_h.show()
+
+
 # # ---------------- Gain Scaling -------------------------
-# a_h.set_title('free running drill (gain scaling, k=2.0)')
-# # Scale up the audio by a factor of 2
-# y_scale = tlautica.gain_scaling(y, 2.0)
+# # Scale up the audio by a factor of 4
+# y_aug = tlautica.gain_scaling(y, 4.0)
 # # Waveform analysis
-# Y = [y, y_scale]
-# SR = [sr, sr]
-# tlautica.disp_multiple_waveform(Y, SR, a_h)
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_waveform(y, sr, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
+# a_h.set_title('free running drill (gain scaling, k = 4.0)')
+# a_h.plot_waveform(y_aug, sr, annotation=True, hold=True)
+# a_h.show()
 # # Mel Spectrogram analysis
-# s_y_scale = tlautica.normalize(a_h.mel_spectrogram(y_scale))
-# S = [s, s_y_scale]
-# tlautica.disp_multiple_mel_spectrogram(S, a_h)
+# s_aug = tlautica.normalize(a_h.mel_spectrogram(y_aug))
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_mel_spectrogram(s, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
+# a_h.set_title('free running drill (gain scaling, k = 4.0)')
+# a_h.plot_mel_spectrogram(s_aug, annotation=True, hold=True)
+# a_h.show()
 #
-# a_h.set_title('free running drill (gain scaling, k=0.5)')
-# # Scale down the audio by a factor of 2
-# y_scale = tlautica.gain_scaling(y, 0.5)
+# # Scale up the audio by a factor of 0.2
+# y_aug = tlautica.gain_scaling(y, 0.2)
 # # Waveform analysis
-# Y = [y, y_scale]
-# SR = [sr, sr]
-# tlautica.disp_multiple_waveform(Y, SR, a_h)
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_waveform(y, sr, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
+# a_h.set_title('free running drill (gain scaling, k = 0.2)')
+# a_h.plot_waveform(y_aug, sr, annotation=True, hold=True)
+# a_h.show()
 # # Mel Spectrogram analysis
-# s_y_scale = tlautica.normalize(a_h.mel_spectrogram(y_scale))
-# S = [s, s_y_scale]
-# tlautica.disp_multiple_mel_spectrogram(S, a_h)
+# s_aug = tlautica.normalize(a_h.mel_spectrogram(y_aug))
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_mel_spectrogram(s, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
+# a_h.set_title('free running drill (gain scaling, k = 0.2)')
+# a_h.plot_mel_spectrogram(s_aug, annotation=True, hold=True)
+# a_h.show()
 #
 #
 # # ----------------- Add white noise -------------------------
-# a_h.set_title('free running drill (white noise, SNR=2.0, k=1.0)')
 # # Add white noise of with a SNR of 2.0, k = 1.0
-# y_noisy = tlautica.add_white_noise(y, 2.0, 1.0)
+# y_aug = tlautica.add_white_noise(y, 2.0, 1.0)
 # # Waveform analysis
-# Y = [y, y_noisy]
-# SR = [sr, sr]
-# tlautica.disp_multiple_waveform(Y, SR, a_h)
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_waveform(y, sr, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
+# a_h.set_title('free running drill (white noise, SNR = 2.0, k = 1.0)')
+# a_h.plot_waveform(y_aug, sr, annotation=True, hold=True)
+# a_h.show()
 # # Mel Spectrogram analysis
-# s_y_noisy = tlautica.normalize(a_h.mel_spectrogram(y_noisy))
-# S = [s, s_y_noisy]
-# tlautica.disp_multiple_mel_spectrogram(S, a_h)
-#
-# a_h.set_title('free running drill (white noise, SNR=0.5, k=2.0)')
-# # Add white noise of with a SNR of 0.5, k = 2.0
-# y_noisy = tlautica.add_white_noise(y, 0.5, 2.0)
+# s_aug = tlautica.normalize(a_h.mel_spectrogram(y_aug))
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_mel_spectrogram(s, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
+# a_h.set_title('free running drill (white noise, SNR = 2.0, k = 1.0)')
+# a_h.plot_mel_spectrogram(s_aug, annotation=True, hold=True)
+# a_h.show()
+# #
+# # Add white noise of with SNR of 0.5, k = 4.0
+# y_aug = tlautica.add_white_noise(y, 0.5, 4.0)
 # # Waveform analysis
-# Y = [y, y_noisy]
-# SR = [sr, sr]
-# tlautica.disp_multiple_waveform(Y, SR, a_h)
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_waveform(y, sr, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
+# a_h.set_title('free running drill (white noise, SNR = 0.5, k = 4.0)')
+# a_h.plot_waveform(y_aug, sr, annotation=True, hold=True)
+# a_h.show()
 # # Mel Spectrogram analysis
-# s_y_noisy = tlautica.normalize(a_h.mel_spectrogram(y_noisy))
-# S = [s, s_y_noisy]
-# tlautica.disp_multiple_mel_spectrogram(S, a_h)
+# s_aug = tlautica.normalize(a_h.mel_spectrogram(y_aug))
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_mel_spectrogram(s, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
+# a_h.set_title('free running drill (white noise, SNR = 0.5, k = 4.0)')
+# a_h.plot_mel_spectrogram(s_aug, annotation=True, hold=True)
+# a_h.show()
 #
 #
 # # -------------------- Pitch scaling ----------------------
-# a_h.set_title('free running drill (Pitch scaling, nstep=2)')
 # # Shift pitch up the audio by 2 half steps (semitones)
-# y_scale = tlautica.pitch_scaling(y, sr, 2)
+# y_aug = tlautica.pitch_scaling(y, sr, 2)
+# print(y.shape[0])
+# print(y_aug.shape[0])
 # # Waveform analysis
-# Y = [y, y_scale]
-# SR = [sr, sr]
-# tlautica.disp_multiple_waveform(Y, SR, a_h)
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_waveform(y, sr, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
+# a_h.set_title('free running drill (pitch scaling, nstep = 2)')
+# a_h.plot_waveform(y_aug, sr, annotation=True, hold=True)
+# a_h.show()
 # # Mel Spectrogram analysis
-# s_y_scale = tlautica.normalize(a_h.mel_spectrogram(y_scale))
-# S = [s, s_y_scale]
-# tlautica.disp_multiple_mel_spectrogram(S, a_h)
+# s_aug = tlautica.normalize(a_h.mel_spectrogram(y_aug))
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_mel_spectrogram(s, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
+# a_h.set_title('free running drill (pitch scaling, nstep = 2)')
+# a_h.plot_mel_spectrogram(s_aug, annotation=True, hold=True)
+# a_h.show()
 #
-# a_h.set_title('free running drill (Pitch scaling, nstep=6)')
 # # Shift pitch up the audio by 6 half steps (semitones)
-# y_scale = tlautica.pitch_scaling(y, sr, 6)
+# y_aug = tlautica.pitch_scaling(y, sr, 6)
+# print(y.shape[0])
+# print(y_aug.shape[0])
 # # Waveform analysis
-# Y = [y, y_scale]
-# SR = [sr, sr]
-# tlautica.disp_multiple_waveform(Y, SR, a_h)
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_waveform(y, sr, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
+# a_h.set_title('free running drill (pitch scaling, nstep = 6)')
+# a_h.plot_waveform(y_aug, sr, annotation=True, hold=True)
+# a_h.show()
 # # Mel Spectrogram analysis
-# s_y_scale = tlautica.normalize(a_h.mel_spectrogram(y_scale))
-# S = [s, s_y_scale]
-# tlautica.disp_multiple_mel_spectrogram(S, a_h)
-#
-#
+# s_aug = tlautica.normalize(a_h.mel_spectrogram(y_aug))
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_mel_spectrogram(s, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
+# a_h.set_title('free running drill (pitch scaling, nstep = 6)')
+# a_h.plot_mel_spectrogram(s_aug, annotation=True, hold=True)
+# a_h.show()
+
+
 # # ---------------- Frequency masking -------------------
+# s_aug = tlautica.frequency_mask(tlautica.normalize(a_h.mel_spectrogram(y)), 2, 27)
+# # Mel Spectrogram analysis
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_mel_spectrogram(s, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
 # a_h.set_title('free running drill (frequency mask, m_f=2, F=27)')
-# s_freq_mask = tlautica.frequency_mask(tlautica.normalize(a_h.mel_spectrogram(y)), 2, 27)
-# S = [s, s_freq_mask]
-# tlautica.disp_multiple_mel_spectrogram(S, a_h)
+# a_h.plot_mel_spectrogram(s_aug, annotation=True, hold=True)
+# a_h.show()
 #
 #
 # # ----------------- Time masking -----------------------
+# s_aug_ = tlautica.time_mask(tlautica.normalize(a_h.mel_spectrogram(y)), 2, 27)
+# # Mel Spectrogram analysis
+# a_h.subplot(2, 1, 1)
+# a_h.set_title('free running drill (original)')
+# a_h.plot_mel_spectrogram(s, annotation=True, hold=True)
+# a_h.subplot(2, 1, 2)
 # a_h.set_title('free running drill (time mask, m_t=2, T=27)')
-# s_time_mask = tlautica.time_mask(tlautica.normalize(a_h.mel_spectrogram(y)), 2, 27)
-# S = [s, s_time_mask]
-# tlautica.disp_multiple_mel_spectrogram(S, a_h)
+# a_h.plot_mel_spectrogram(s_aug_, annotation=True, hold=True)
+# a_h.show()
 
 
 # ------------------ Add organic noise -----------------------------
-path_to_noise = 'C:/Users/Tze Lun/data prelim/data_prelim/pressing_2.wav'
+# Hello noise amplified by 3x
+path_to_noise = 'hello.wav'
 noise, sr_noise = tlautica.load(path_to_noise)
-noise = tlautica.segment_audio(noise, sr_noise, 2.0, 2.0)
-y_noisy = tlautica.add_noise(y, sr, (noise, sr_noise), t_in=4.0, k=2.0)
-# tlautica.convert_to_audiofile('with_noise.wav', y_noisy, sr)
-dt = tlautica.to_metadata(np.array([y_noisy]), sr, 'audio waveform array')
-tlautica.save_json('polluted_signal', dt)
-print(y.shape[0])
-print(y_noisy.shape[0])
-# waveform analysis
-Y = [y, y_noisy]
-SR = [sr, sr]
-tlautica.disp_multiple_waveform(Y, SR, a_h)
+noise = tlautica.segment_audio(noise, sr_noise, 1.0)  # remove unwanted spike at the start
+a_h.set_title('hello.wav')
+a_h.plot_waveform(noise, sr_noise, annotation=True)
+y_aug = tlautica.add_noise(y, sr, (noise, sr_noise), t_in=4.0, k=0.0)
+tlautica.convert_to_audiofile('free_running_drill_with_hello.wav', y_aug, sr)
+# Waveform analysis
+a_h.subplot(2, 1, 1)
+a_h.set_title('free running drill (original)')
+a_h.plot_waveform(y, sr, annotation=True, hold=True)
+a_h.subplot(2, 1, 2)
+a_h.set_title('free running drill (with "hello.wav", t_in = 4s, k = 0.5)')
+a_h.plot_waveform(y_aug, sr, annotation=True, hold=True)
+a_h.show()
 # mel spectrogram analysis
-s_y_noisy = tlautica.normalize(a_h.mel_spectrogram(y_noisy))
-S = [s, s_y_noisy]
-tlautica.disp_multiple_mel_spectrogram(S, a_h)
+s_aug = tlautica.normalize(a_h.mel_spectrogram(y_aug))
+a_h.subplot(2, 1, 1)
+a_h.set_title('free running drill (original)')
+a_h.plot_mel_spectrogram(s, annotation=True, hold=True)
+a_h.subplot(2, 1, 2)
+a_h.set_title('free running drill (with "hello.wav", t_in = 4s, k = 0.5)')
+a_h.plot_mel_spectrogram(s_aug, annotation=True, hold=True)
+a_h.show()
 
-json_handler = tlautica.load_json('polluted_signal')
+# ------------------------ Saving and loading dataset ---------------------------------
+# dt = tlautica.to_metadata(np.array([data]), sr, 'audio waveform array')
+# tlautica.save_json('polluted_signal', dt)
+# json_handler = tlautica.load_json('polluted_signal')
 # waveform analysis
-Y = [y, json_handler.data[0]]
-SR = [sr, json_handler.sr]
-tlautica.disp_multiple_waveform(Y, SR, a_h)
+# Y = [y, json_handler.data[0]]
+# SR = [sr, json_handler.sr]
+# tlautica.disp_multiple_waveform(Y, SR, a_h)
 
